@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surat Cinta Spesial Untukmu 💙</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-handwriting {
+            font-family: 'Caveat', cursive;
+        }
+
+        .font-cute {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Animated Floating Canvas Background */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 3D Envelope Styling */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+
+        .envelope {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            background-color: #38bdf8;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(14, 165, 233, 0.35);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .envelope:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(14, 165, 233, 0.45);
+        }
+
+        /* Flap 3D Flip */
+        .envelope .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 120px solid #0284c7;
+            transform-origin: top;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .envelope.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        /* Envelope Pockets */
+        .envelope .pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid #7dd3fc;
+            border-right: 160px solid #7dd3fc;
+            border-bottom: 120px solid #38bdf8;
+            border-radius: 0 0 12px 12px;
+            z-index: 4;
+        }
+
+        .envelope .seal {
+            position: absolute;
+            top: 95px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: #e0f2fe;
+            border: 3px solid #0284c7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 6;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        .envelope.open .seal {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+            pointer-events: none;
+        }
+
+        /* Letter Inside */
+        .letter {
+            position: absolute;
+            bottom: 10px;
+            left: 15px;
+            right: 15px;
+            height: 190px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.8s ease;
+            z-index: 3;
+            overflow: hidden;
+            border: 2px dashed #bae6fd;
+        }
+
+        .envelope.open .letter {
+            transform: translateY(-160px);
+            height: 380px;
+            z-index: 10;
+            box-shadow: 0 20px 40px rgba(2, 132, 199, 0.25);
+            overflow-y: auto;
+        }
+
+        /* Floating and Wobbling Animation for Lopyu Text */
+        @keyframes floatText {
+            0%, 100% {
+                transform: translateY(0px) rotate(-2deg) scale(1);
+            }
+            50% {
+                transform: translateY(-8px) rotate(2deg) scale(1.05);
+            }
+        }
+
+        .animate-lopyu {
+            display: inline-block;
+            animation: floatText 2s ease-in-out infinite;
+            color: #0284c7;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 5px #38bdf8);
+            }
+            50% {
+                filter: drop-shadow(0 0 18px #0284c7);
+            }
+        }
+
+        .heart-glow {
+            animation: pulseGlow 1.5s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar for letter */
+        .letter::-webkit-scrollbar {
+            width: 6px;
+        }
+        .letter::-webkit-scrollbar-track {
+            background: #f0f9ff;
+            border-radius: 10px;
+        }
+        .letter::-webkit-scrollbar-thumb {
+            background: #7dd3fc;
+            border-radius: 10px;
+        }
+
+        /* Sparkle effect */
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            animation: sparkleAnim 1s linear forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between min-h-screen p-4 sm:p-6 relative">
+
+    <!-- Background Canvas for Floating Light-Blue Hearts & Flowers -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Top Navigation Header -->
+    <header class="z-20 text-center mt-2 sm:mt-4">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/70 backdrop-blur-md rounded-full shadow-sm border border-sky-200">
+            <i class="fa-solid fa-heart text-sky-400 animate-bounce"></i>
+            <span class="text-sky-800 text-xs sm:text-sm font-semibold tracking-wide">Pesan Spesial Untuk Sayang 💙</span>
+        </div>
+    </header>
+
+    <!-- Main Interactive Area -->
+    <main class="z-20 my-auto flex flex-col items-center justify-center w-full max-w-md">
+        
+        <!-- Instruction Badge -->
+        <div id="clickHint" class="mb-6 text-center animate-pulse transition-all duration-300">
+            <span class="bg-sky-500/90 text-white font-cute text-sm px-4 py-2 rounded-full shadow-lg inline-flex items-center gap-2">
+                <i class="fa-solid fa-hand-pointer text-sky-200"></i> Ketuk Amplop Untuk Membuka Surat!
+            </span>
+        </div>
+
+        <!-- 3D Envelope Wrapper -->
+        <div class="envelope-wrapper my-4">
+            <div id="envelope" class="envelope" onclick="toggleLetter()">
+                <!-- Envelope Flap -->
+                <div class="flap"></div>
+                
+                <!-- Wax Seal Icon -->
+                <div class="seal">
+                    <i class="fa-solid fa-heart text-sky-500 text-xl heart-glow"></i>
+                </div>
+
+                <!-- Envelope Pocket -->
+                <div class="pocket"></div>
+
+                <!-- Letter Content Inside -->
+                <div id="letterContent" class="letter text-slate-700 flex flex-col justify-between">
+                    
+                    <!-- Decorative Top Flowers Header -->
+                    <div>
+                        <div class="flex items-center justify-between border-b border-sky-100 pb-2 mb-3">
+                            <div class="flex items-center gap-1.5 text-sky-400">
+                                <i class="fa-solid fa-cloud-sun text-lg"></i>
+                                <span class="font-cute text-xs text-sky-500">Isya Time ✨</span>
+                            </div>
+                            <div class="flex gap-1 text-sky-400">
+                                <i class="fa-solid fa-spa text-xs"></i>
+                                <i class="fa-solid fa-heart text-xs"></i>
+                                <i class="fa-solid fa-spa text-xs"></i>
+                            </div>
+                        </div>
+
+                        <!-- Letter Text Body -->
+                        <div class="space-y-3 font-handwriting text-2xl sm:text-3xl leading-relaxed text-sky-950">
+                            <p class="font-bold text-sky-600 flex items-center gap-2">
+                                Halo Sayanggggg! <span class="text-xl">🌸</span>
+                            </p>
+                            <p class="text-slate-700">
+                                <span class="animate-lopyu font-bold text-3xl sm:text-4xl">Lopyuuuu</span> sayanggggg kamu belummm bangun kahhh... 
+                            </p>
+                            <p class="text-slate-700">
+                                bangun dah <span class="underline decoration-sky-300 font-bold">isyaaa</span> 🌙✨
+                            </p>
+                            <p class="text-slate-700">
+                                btw aku suka banget sama kamuu <span class="animate-lopyu text-sky-500 font-bold">lopyuuu</span> sekebon raya bogorrrrr sayanggggg 🌳💙🌸
+                            </p>
+                            <p class="text-sky-600 font-bold text-center pt-2">
+                                pokonya <span class="animate-lopyu text-sky-500 text-3xl sm:text-4xl">looopyuuu lopyuuuu lopyuuuu!</span> 🥰
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Stamp & Hearts -->
+                    <div class="mt-6 pt-3 border-t border-sky-100 flex justify-between items-end">
+                        <div class="text-xs font-cute text-sky-400">
+                            Ditulis dengan rasa sayang 💙
+                        </div>
+                        <div class="flex items-center space-x-1 text-sky-400">
+                            <i class="fa-solid fa-heart text-xs animate-ping"></i>
+                            <i class="fa-solid fa-heart text-sm"></i>
+                            <i class="fa-solid fa-heart text-base"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Control Buttons -->
+        <div id="actionButtons" class="mt-8 flex flex-wrap justify-center gap-3 opacity-0 transition-opacity duration-700 pointer-events-none">
+            <button onclick="spawnLoveBurst()" class="px-5 py-2.5 bg-white text-sky-600 font-cute font-semibold rounded-full shadow-md hover:bg-sky-50 transition transform hover:scale-105 active:scale-95 flex items-center gap-2 border border-sky-200">
+                <i class="fa-solid fa-heart-pulse text-sky-400"></i> Sebar Love Biru!
+            </button>
+            <button onclick="playCuteSound()" class="px-5 py-2.5 bg-sky-500 text-white font-cute font-semibold rounded-full shadow-md hover:bg-sky-600 transition transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                <i class="fa-solid fa-music"></i> Suara Cantik 🎵
+            </button>
+            <button onclick="sendReplyModal()" class="px-5 py-2.5 bg-sky-600 text-white font-cute font-semibold rounded-full shadow-md hover:bg-sky-700 transition transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                <i class="fa-solid fa-reply"></i> Balas Sayang 💬
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Reply Modal Overlay -->
+    <div id="replyModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-sky-100 text-center transform scale-90 transition-transform duration-300" id="modalBox">
+            <div class="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-3 text-sky-500 text-2xl">
+                <i class="fa-solid fa-comment-heart"></i>
+            </div>
+            <h3 class="text-xl font-cute font-bold text-sky-900 mb-2">Kirim Balasan Lucu!</h3>
+            <p class="text-sm text-slate-600 mb-4">Pilih jawabanmu untuk si penyayang yang lagi kangen ini:</p>
+            
+            <div class="space-y-2 mb-4">
+                <button onclick="chooseReply('Iyaaa aku udah bangun kok! Lopyu too sekebon raya bogor juga! 💙🥰')" class="w-full text-left p-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-sm font-semibold transition border border-sky-200 flex items-center justify-between">
+                    <span>"Iyaaa aku udah bangun kok! Lopyu too! 💙"</span>
+                    <i class="fa-solid fa-chevron-right text-xs text-sky-400"></i>
+                </button>
+                <button onclick="chooseReply('Masih ngantukkk tapi lopyuuu jugaaa sayanggg! 😴💙')" class="w-full text-left p-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-sm font-semibold transition border border-sky-200 flex items-center justify-between">
+                    <span>"Masih ngantukkk tapi lopyuuu jugaaa! 😴"</span>
+                    <i class="fa-solid fa-chevron-right text-xs text-sky-400"></i>
+                </button>
+            </div>
+
+            <button onclick="closeReplyModal()" class="text-xs text-slate-400 hover:text-slate-600 font-semibold underline">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="z-20 text-center text-sky-700/80 text-xs font-semibold my-2">
+        Dibuat khusus penuh dengan Bunga & Love Biru Muda 🌸💙
+    </footer>
+
+    <script>
+        // State variables
+        let isOpen = false;
+        const envelope = document.getElementById('envelope');
+        const clickHint = document.getElementById('clickHint');
+        const actionButtons = document.getElementById('actionButtons');
+
+        // Canvas Animation Logic for Light-Blue Hearts & Flowers
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        let canvasWidth, canvasHeight;
+
+        function resizeCanvas() {
+            canvasWidth = canvas.width = window.innerWidth;
+            canvasHeight = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Heart and Flower Particle Class
+        class Particle {
+            constructor(x, y, isBurst = false) {
+                this.x = x || Math.random() * canvasWidth;
+                this.y = y || (isBurst ? canvasHeight / 2 + 50 : canvasHeight + Math.random() * 100);
+                this.size = Math.random() * 16 + 10;
+                
+                // Light Blue Theme Colors
+                const colors = ['#38bdf8', '#7dd3fc', '#bae6fd', '#0284c7', '#e0f2fe', '#60a5fa'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Type: 'heart' or 'flower'
+                this.type = Math.random() > 0.4 ? 'heart' : 'flower';
+                
+                // Movement
+                this.speedY = isBurst ? (Math.random() * -5 - 2) : (Math.random() * -1.8 - 0.6);
+                this.speedX = (Math.random() - 0.5) * (isBurst ? 4 : 1.5);
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.05;
+                this.opacity = isBurst ? 1 : Math.random() * 0.7 + 0.3;
+                this.fadeRate = isBurst ? Math.random() * 0.01 + 0.005 : 0;
+                this.wobble = Math.random() * Math.PI * 2;
+                this.wobbleSpeed = Math.random() * 0.05 + 0.02;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.wobble += this.wobbleSpeed;
+                this.x += this.speedX + Math.sin(this.wobble) * 0.8;
+                this.rotation += this.rotSpeed;
+
+                if (this.fadeRate > 0) {
+                    this.opacity -= this.fadeRate;
+                }
+
+                // Reset position if particle reaches top (for ambient background particles)
+                if (this.y < -30 && this.fadeRate === 0) {
+                    this.y = canvasHeight + 20;
+                    this.x = Math.random() * canvasWidth;
+                }
+            }
+
+            draw() {
+                if (this.opacity <= 0) return;
+
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.globalAlpha = Math.max(0, this.opacity);
+                ctx.fillStyle = this.color;
+
+                if (this.type === 'heart') {
+                    // Draw Light-Blue Heart
+                    ctx.beginPath();
+                    const topCurveHeight = this.size * 0.3;
+                    ctx.moveTo(0, topCurveHeight);
+                    // top left curve
+                    ctx.bezierCurveTo(
+                        0, 0, 
+                        -this.size / 2, 0, 
+                        -this.size / 2, topCurveHeight
+                    );
+                    // bottom left curve
+                    ctx.bezierCurveTo(
+                        -this.size / 2, (this.size + topCurveHeight) / 2, 
+                        0, this.size, 
+                        0, this.size
+                    );
+                    // bottom right curve
+                    ctx.bezierCurveTo(
+                        0, this.size, 
+                        this.size / 2, (this.size + topCurveHeight) / 2, 
+                        this.size / 2, topCurveHeight
+                    );
+                    // top right curve
+                    ctx.bezierCurveTo(
+                        this.size / 2, 0, 
+                        0, 0, 
+                        0, topCurveHeight
+                    );
+                    ctx.closePath();
+                    ctx.fill();
+
+                } else {
+                    // Draw Light-Blue Flower (5 Petals)
+                    ctx.beginPath();
+                    const petals = 5;
+                    const radius = this.size / 2;
+                    for (let i = 0; i < petals; i++) {
+                        const angle = (i * 2 * Math.PI) / petals;
+                        const px = Math.cos(angle) * radius;
+                        const py = Math.sin(angle) * radius;
+                        ctx.moveTo(0, 0);
+                        ctx.arc(px, py, radius * 0.6, 0, Math.PI * 2);
+                    }
+                    ctx.fill();
+                    
+                    // Flower Center (Soft yellow/white highlight)
+                    ctx.beginPath();
+                    ctx.fillStyle = '#fef08a';
+                    ctx.arc(0, 0, radius * 0.35, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        // Initialize Ambient Background Particles
+        function initParticles() {
+            particles = [];
+            const count = Math.min(Math.floor(window.innerWidth / 20), 40);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+
+                // Remove faded burst particles
+                if (particles[i].opacity <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        // Click anywhere on body to spawn light blue floating sparkles & hearts
+        document.addEventListener('click', (e) => {
+            // Ignore click inside interactive buttons
+            if (e.target.closest('button') || e.target.closest('#envelope')) return;
+
+            spawnSparkle(e.clientX, e.clientY);
+            
+            for (let i = 0; i < 4; i++) {
+                const p = new Particle(e.clientX + (Math.random() - 0.5) * 40, e.clientY + (Math.random() - 0.5) * 40, true);
+                p.speedY = Math.random() * -3 - 1;
+                particles.push(p);
+            }
+        });
+
+        function spawnSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle text-sky-300 text-xl';
+            sparkle.style.left = `${x - 10}px`;
+            sparkle.style.top = `${y - 10}px`;
+            sparkle.innerHTML = '<i class="fa-solid fa-sparkles"></i>';
+            document.body.appendChild(sparkle);
+
+            setTimeout(() => sparkle.remove(), 1000);
+        }
+
+        // Toggle Letter Open/Close Function
+        function toggleLetter() {
+            isOpen = !isOpen;
+
+            if (isOpen) {
+                envelope.classList.add('open');
+                clickHint.style.opacity = '0';
+                
+                setTimeout(() => {
+                    clickHint.style.display = 'none';
+                    actionButtons.classList.remove('opacity-0', 'pointer-events-none');
+                }, 400);
+
+                // Play soft chime sound
+                playOpeningChime();
+
+                // Burst of Light Blue Hearts and Flowers
+                spawnLoveBurst();
+
+            } else {
+                envelope.classList.remove('open');
+                clickHint.style.display = 'block';
+                setTimeout(() => clickHint.style.opacity = '1', 10);
+                actionButtons.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        // Burst function for love button and letter opening
+        function spawnLoveBurst() {
+            const rect = envelope.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 35; i++) {
+                const p = new Particle(centerX, centerY, true);
+                particles.push(p);
+            }
+        }
+
+        // Web Audio API Sound Effects (Simple Sweet Melody Synths)
+        function playOpeningChime() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctxAudio = new AudioContext();
+
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 notes
+                notes.forEach((freq, idx) => {
+                    const osc = ctxAudio.createOscillator();
+                    const gain = ctxAudio.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+
+                    gain.gain.setValueAtTime(0.08, ctxAudio.currentTime + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctxAudio.currentTime + idx * 0.12 + 0.6);
+
+                    osc.connect(gain);
+                    gain.connect(ctxAudio.destination);
+
+                    osc.start(ctxAudio.currentTime + idx * 0.12);
+                    osc.stop(ctxAudio.currentTime + idx * 0.12 + 0.6);
+                });
+            } catch(e) {
+                console.log("Audio not supported or restricted");
+            }
+        }
+
+        function playCuteSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctxAudio = new AudioContext();
+
+                const now = ctxAudio.currentTime;
+                const osc = ctxAudio.createOscillator();
+                const gain = ctxAudio.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.3);
+
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.35);
+
+                spawnLoveBurst();
+            } catch(e) {}
+        }
+
+        // Reply Modal Functions
+        function sendReplyModal() {
+            const modal = document.getElementById('replyModal');
+            const box = document.getElementById('modalBox');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            box.classList.remove('scale-90');
+            box.classList.add('scale-100');
+        }
+
+        function closeReplyModal() {
+            const modal = document.getElementById('replyModal');
+            const box = document.getElementById('modalBox');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-90');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function chooseReply(text) {
+            closeReplyModal();
+            
+            // Spawn celebration particles
+            spawnLoveBurst();
+
+            // WhatsApp Share Redirect (Optional) or Cute Toast Message
+            setTimeout(() => {
+                const encodedText = encodeURIComponent(text);
+                window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+            }, 400);
+        }
+    </script>
+</body>
+</html>
